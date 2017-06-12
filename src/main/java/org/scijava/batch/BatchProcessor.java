@@ -1,26 +1,33 @@
 package org.scijava.batch;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 
 import net.imagej.ImageJ;
+import net.imagej.table.Column;
+import net.imagej.table.DefaultGenericTable;
+import net.imagej.table.Table;
 
+import org.scijava.ItemIO;
+import org.scijava.MenuPath;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
 import org.scijava.log.LogService;
 import org.scijava.module.Module;
-import org.scijava.module.ModuleException;
-import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleItem;
 import org.scijava.module.ModuleService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.script.ScriptInfo;
-import org.scijava.script.ScriptModule;
 import org.scijava.script.ScriptService;
 
 /**
@@ -29,7 +36,7 @@ import org.scijava.script.ScriptService;
  * 
  * @author Jan Eglinger
  */
-@Plugin(type = Command.class, label = "Batch Processor", initializer = "initScriptChoice", menuPath = "Process>Batch>SciJava Batch Processor")
+@Plugin(type = Command.class, label = "Batch Processor", initializer = "initScriptChoice", menuPath = "Process>Batch>Process Files with Script")
 public class BatchProcessor extends DynamicCommand {
 
 	// -- Parameters --
@@ -46,8 +53,18 @@ public class BatchProcessor extends DynamicCommand {
 	@Parameter(label = "Input directory", style = "directory")
 	private File inputFolder;
 
+	@Parameter(label = "File extension")
+	private String extension;
+
 	@Parameter(label = "Script to run")
 	private String scriptChoice;
+
+	@SuppressWarnings("rawtypes")
+	@Parameter(type = ItemIO.OUTPUT)
+	private Table outputTable;
+	// -- Other fields --
+
+	private Map<String, Module> scriptMap = new HashMap<>();
 
 	// -- Initializer methods --
 
@@ -57,43 +74,70 @@ public class BatchProcessor extends DynamicCommand {
 	 * identifiers.
 	 */
 	protected void initScriptChoice() {
-		MutableModuleItem<String> input = getInfo().getMutableInput("scriptChoice", String.class);
+		MutableModuleItem<String> input = getInfo().getMutableInput(
+				"scriptChoice", String.class);
 		List<String> choices = new ArrayList<>();
 		for (ScriptInfo script : scripts.getScripts()) {
-			try {
-				if (modules.getSingleInput(script.createModule(), File.class) != null) {
-					choices.add(script.getIdentifier());
-					// choices.add(script.getPath());
-					// TODO create map with readable names and modules
-				}
-			} catch (ModuleException exc) {
-				log.warn("Could not create module for script: ", exc);
+			Module scriptModule = modules.createModule(script);
+			if (modules.getSingleInput(scriptModule, File.class) != null) {
+				String scriptName = getNiceName(script);
+				choices.add(scriptName);
+				scriptMap.put(scriptName, scriptModule);
 			}
 		}
+		Collections.sort(choices);
 		input.setChoices(choices);
+	}
+
+	// -- Helper methods --
+
+	private String getNiceName(ScriptInfo script) {
+		MenuPath menu = script.getMenuPath();
+		return menu.getLeaf().getName() + " (in " + menu.getMenuString(false)
+				+ ")";
 	}
 
 	// -- Main method --
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void run() {
-		ModuleInfo moduleInfo = modules.getModuleById(scriptChoice);
-		ScriptModule module;
-		try {
-			module = (ScriptModule) moduleInfo.createModule();
-		} catch (ModuleException exc) {
-			log.error("Error during module creation", exc);
-			return;
-		}
-		module.setContext(getContext());
+		Module module = scriptMap.get(scriptChoice);
 		ModuleItem<File> fileInput = modules.getSingleInput(module, File.class);
-		for (File file : inputFolder.listFiles()) {
+
+		/* Mark File input as resolved */
+		module.resolveInput(fileInput.getName());
+
+		/* Create output Table and mark all outputs as resolved */
+		outputTable = new DefaultGenericTable();
+		@SuppressWarnings("rawtypes")
+		List<Column> columns = new ArrayList<>();
+
+		for (String outputKey : module.getOutputs().keySet()) {
+			columns.add(outputTable.appendColumn(outputKey));
+			module.resolveOutput(outputKey);
+		}
+
+		FilenameFilter filter = new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				if (name.toLowerCase().endsWith(extension.toLowerCase()))
+					return true;
+				return false;
+			}
+		};
+
+		int i = 0;
+		for (File file : inputFolder.listFiles(filter)) {
 			fileInput.setValue(module, file);
-			module.resolveInput(fileInput.getName());
+			outputTable.appendRow(file.getName());
 
 			Future<Module> instance = modules.run(module, true);
 			try {
-				log.info(instance.get());
+				Map<String, Object> outputs = instance.get().getOutputs();
+				for (Entry<String, Object> output : outputs.entrySet()) {
+					outputTable.set(output.getKey(), i++, output.getValue());
+				}
 			} catch (InterruptedException exc) {
 				log.error("Error: interrupted module execution", exc);
 				return;
