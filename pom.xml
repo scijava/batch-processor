@@ -64,8 +64,8 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/imagejan/scijava-batch-processor</connection>
-		<developerConnection>scm:git:git@github.com:imagejan/scijava-batch-processor</developerConnection>
+		<connection>scm:git:git://github.com/fmi-faim/batch-processor</connection>
+		<developerConnection>scm:git:git@github.com:fmi-faim/batch-processor</developerConnection>
 		<tag>HEAD</tag>
 		<url>https://github.com/imagejan/scijava-batch-processor</url>
 	</scm>
@@ -81,7 +81,7 @@
 		<package-name>org.scijava</package-name>
 		<main-class>org.scijava.batch.BatchProcessor</main-class>
 		<license.licenseName>bsd_2</license.licenseName>
-		<license.copyrightOwners>N/A</license.copyrightOwners>
+		<license.copyrightOwners>Friedrich Miescher Institute for Biomedical Research, Basel (Switzerland)</license.copyrightOwners>
 
 		<!-- NB: Deploy releases to the ImageJ Maven repository. -->
 		<releaseProfiles>deploy-to-imagej</releaseProfiles>
