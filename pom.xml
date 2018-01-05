@@ -64,14 +64,14 @@
 	</mailingLists>
 
 	<scm>
-		<connection>scm:git:git://github.com/fmi-faim/batch-processor</connection>
-		<developerConnection>scm:git:git@github.com:fmi-faim/batch-processor</developerConnection>
+		<connection>scm:git:git://github.com/scijava/batch-processor</connection>
+		<developerConnection>scm:git:git@github.com:scijava/batch-processor</developerConnection>
 		<tag>HEAD</tag>
-		<url>https://github.com/imagejan/scijava-batch-processor</url>
+		<url>https://github.com/scijava/batch-processor</url>
 	</scm>
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>https://github.com/imagejan/scijava-batch-processor/issues</url>
+		<url>https://github.com/scijava/batch-processor/issues</url>
 	</issueManagement>
 	<ciManagement>
 		<system>None</system>
