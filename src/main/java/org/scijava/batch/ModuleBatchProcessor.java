@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import net.imagej.table.Column;
 import net.imagej.table.DefaultGenericTable;
@@ -15,8 +16,7 @@ import net.imagej.table.Table;
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
-import org.scijava.convert.ConvertService;
-import org.scijava.log.LogService;
+import org.scijava.log.Logger;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleItem;
@@ -29,17 +29,17 @@ import org.scijava.widget.FileWidget;
 @Plugin(type = Command.class, label = "Choose batch processing parameters", initializer = "initInputChoice")
 public class ModuleBatchProcessor extends DynamicCommand {
 	@Parameter
-	private ModuleService modules;
+	private ModuleService moduleService;
 
 	@Parameter
-	private ConvertService convert;
-	
+	private BatchService batchService;
+
 	@Parameter
-	private LogService log;
-	
+	private Logger log;
+
 	@Parameter
 	private ModuleInfo moduleInfo; // to be provided at runtime!
-	
+
 	@Parameter(label = "Which input parameter to batch?", persist = false)
 	private String inputChoice;
 
@@ -57,23 +57,15 @@ public class ModuleBatchProcessor extends DynamicCommand {
 
 	protected void initInputChoice() {
 		MutableModuleItem<String> choiceInput = getInfo().getMutableInput("inputChoice", String.class);
-		// get compatible inputs from module
-		ArrayList<String> compatibleInputs = new ArrayList<>();
-		for (ModuleItem<?> input : moduleInfo.inputs()) {
-			// TODO consider replacing by isAssignableFrom
-			if (convert.supports(new File(""), input.getType())) {
-				// if we can convert a File to the given input,
-				// add it to the list of compatible inputs
-				compatibleInputs.add(input.getName());
-			}
-		}
-		// if only single input left, fill module input and resolve 'inputChoice'
+		// Get compatible inputs for moduleInfo
+		List<ModuleItem<?>> compatibleInputs = batchService
+				.batchableInputs(moduleInfo);
 		if (compatibleInputs.size() == 1) {
-			choiceInput.setValue(this, compatibleInputs.get(0));
+			choiceInput.setValue(this, compatibleInputs.get(0).getName());
 			resolveInput("inputChoice");
-		}
-		else if (compatibleInputs.size() > 1) {
-			choiceInput.setChoices(compatibleInputs);
+		} else if (compatibleInputs.size() > 1) {
+			choiceInput.setChoices(compatibleInputs.stream()
+					.map(ModuleItem::getName).collect(Collectors.toList()));
 		}
 	}
 
@@ -84,7 +76,7 @@ public class ModuleBatchProcessor extends DynamicCommand {
 		// mark inputChoice as resolved, then harvest script parameters (i.e. run)
 		ModuleItem<File> fileInput = moduleInfo.getInput(inputChoice, File.class);
 		// TODO check if conversion needed?
-		Module scriptModule = modules.createModule(moduleInfo);
+		Module scriptModule = moduleService.createModule(moduleInfo);
 		scriptModule.resolveInput(inputChoice);
 
 		/* Create output Table and mark all outputs as resolved */
@@ -117,7 +109,7 @@ public class ModuleBatchProcessor extends DynamicCommand {
 		fileInput.setValue(module, file);
 		outputTable.appendRow(file.getName());
 
-		Future<Module> instance = modules.run(module, true);
+		Future<Module> instance = moduleService.run(module, true);
 		try {
 			// run the script
 			Map<String, Object> outputs = instance.get().getOutputs();
