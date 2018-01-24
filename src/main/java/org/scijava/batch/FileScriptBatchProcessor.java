@@ -17,7 +17,6 @@ import org.scijava.command.DynamicCommand;
 import org.scijava.convert.ConvertService;
 import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleItem;
-import org.scijava.module.ModuleService;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.script.ScriptService;
@@ -29,9 +28,6 @@ public class FileScriptBatchProcessor extends DynamicCommand {
 
 	private final String WILDCARD = "Wildcard";
 	private final String REGEX = "Regex";
-
-	@Parameter
-	private ModuleService modules;
 
 	@Parameter
 	private ScriptService scripts;
@@ -66,7 +62,6 @@ public class FileScriptBatchProcessor extends DynamicCommand {
 	@Parameter(label = "Output directory", style = FileWidget.DIRECTORY_STYLE, required = false)
 	private File outputFolder;
 
-	private FilenameFilter inputFilter;
 	private List<File> fileList;
 	private ModuleInfo moduleInfo;
 
@@ -111,6 +106,7 @@ public class FileScriptBatchProcessor extends DynamicCommand {
 	 */
 	protected void directoryCallback() {
 		// get list of all applicable files
+		FilenameFilter inputFilter;
 		try {
 			switch (filterChoice) {
 			case WILDCARD:
@@ -119,6 +115,7 @@ public class FileScriptBatchProcessor extends DynamicCommand {
 			case REGEX:
 			default:
 				inputFilter = new RegexFileFilter(pattern);
+				break;
 			}
 			fileList = populateFileList(inputFolder, inputFilter, recursive);
 		} catch (PatternSyntaxException e) {
