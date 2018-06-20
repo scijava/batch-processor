@@ -46,8 +46,8 @@ public class ModuleBatchProcessor extends DynamicCommand {
 	@Parameter(label = "Input files")
 	private File[] inputFileList;
 
-	@Parameter(label = "Output directory", style = FileWidget.DIRECTORY_STYLE, required = false)
-	private File outputFolder;
+//	@Parameter(label = "Output directory", style = FileWidget.DIRECTORY_STYLE, required = false)
+//	private File outputFolder;
 
 	@SuppressWarnings("rawtypes")
 	@Parameter(type = ItemIO.OUTPUT)

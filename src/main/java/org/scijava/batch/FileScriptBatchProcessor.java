@@ -59,8 +59,8 @@ public class FileScriptBatchProcessor extends DynamicCommand {
 	@Parameter(visibility = ItemVisibility.MESSAGE, persist = false)
 	private String message = " "; // Placeholder message
 
-	@Parameter(label = "Output directory", style = FileWidget.DIRECTORY_STYLE, required = false)
-	private File outputFolder;
+//	@Parameter(label = "Output directory", style = FileWidget.DIRECTORY_STYLE, required = false)
+//	private File outputFolder;
 
 	private List<File> fileList;
 	private ModuleInfo moduleInfo;
@@ -80,7 +80,7 @@ public class FileScriptBatchProcessor extends DynamicCommand {
 		inputMap.put("moduleInfo", moduleInfo);
 		File[] fileArray = fileList.toArray(new File[fileList.size()]);
 		inputMap.put("inputFileList", fileArray);
-		inputMap.put("outputFolder", outputFolder);
+//		inputMap.put("outputFolder", outputFolder);
 		commands.run(ModuleBatchProcessor.class, true, inputMap);
 	}
 
