@@ -2,18 +2,16 @@ package org.scijava.batch;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 
 import org.scijava.Priority;
-import org.scijava.convert.ConvertService;
 import org.scijava.log.LogService;
-import org.scijava.module.Module;
-import org.scijava.module.ModuleService;
+import org.scijava.module.ModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
 import org.scijava.script.ScriptInfo;
@@ -22,18 +20,15 @@ import org.scijava.ui.swing.widget.SwingInputWidget;
 import org.scijava.widget.InputWidget;
 import org.scijava.widget.WidgetModel;
 
-@Plugin(type = InputWidget.class, priority = Priority.NORMAL_PRIORITY)
+@Plugin(type = InputWidget.class, priority = Priority.NORMAL)
 public class SwingScriptInfoWidget extends SwingInputWidget<ScriptInfo>
 		implements ActionListener, ScriptInfoWidget<JPanel> {
 
 	@Parameter
-	private ScriptService scripts;
+	private ScriptService scriptService;
 
 	@Parameter
-	private ModuleService modules;
-
-	@Parameter
-	private ConvertService convert;
+	private BatchService batchService;
 
 	@Parameter
 	private LogService log;
@@ -55,30 +50,11 @@ public class SwingScriptInfoWidget extends SwingInputWidget<ScriptInfo>
 	public void set(final WidgetModel model) {
 		super.set(model);
 
-		// get required class from style attribute
-		String style = model.getItem().getWidgetStyle();
-		if (style == null) {
-			style = "java.io.File"; // default to File
-		}
-		Class<?> inputType;
-		try {
-			inputType = Class.forName(style);
-		} catch (ClassNotFoundException exc) {
-			log.warn("Wrong style attribute: ", exc);
-			inputType = File.class;
-		}
-
 		// create script map
-		for (ScriptInfo script : scripts.getScripts()) {
-			Module scriptModule = modules.createModule(script);
-			for (String inputItem : scriptModule.getInputs().keySet()) {
-				// TODO consider replacing by isAssignableFrom
-				if (convert.supports(inputType, script.getInput(inputItem).getType())) {
-				//if (script.getInput(inputItem).getType().isAssignableFrom(inputType)) {
-					log.info("Support conversion from " + inputType + " to " + script.getInput(inputItem).getType());
-					scriptMap.put(script.getMenuPath().getMenuString(), script);
-					break;
-				}
+		for (ScriptInfo script : scriptService.getScripts()) {
+			List<ModuleItem<?>> compatibleInputs = batchService.batchableInputs(script);
+			if (!compatibleInputs.isEmpty()) {
+				scriptMap.put(script.getMenuPath().getMenuString(), script);
 			}
 		}
 
