@@ -85,6 +85,8 @@ public class MenuScriptBatchProcessor extends DynamicCommand {
 	 * Count all applicable files and display them in the dialog message
 	 */
 	protected void directoryCallback() {
+		if (inputFolder == null || !inputFolder.exists()) return;
+
 		// get list of all applicable files
 		FilenameFilter inputFilter;
 		try {
