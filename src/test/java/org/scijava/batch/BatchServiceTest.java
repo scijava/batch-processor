@@ -2,10 +2,12 @@ package org.scijava.batch;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.StringReader;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import net.imagej.table.Table;
@@ -17,6 +19,7 @@ import org.scijava.Context;
 import org.scijava.command.CommandInfo;
 import org.scijava.command.CommandService;
 import org.scijava.module.Module;
+import org.scijava.module.ModuleItem;
 import org.scijava.module.ModuleService;
 import org.scijava.script.ScriptInfo;
 import org.scijava.service.SciJavaService;
@@ -44,6 +47,37 @@ public class BatchServiceTest {
 				.getService(BatchService.class);
 		assertNotNull(batchService);
 	}
+	
+	@Test
+	public void testBatchableFileInputs() {
+		String script = "" //
+			+ "#@ File fileInput\n" //
+			+ "#@ String stringInput\n" //
+			+ "#@ Integer integerInput\n" //
+			+ "#@ Double doubleInput\n" //
+			+ "";
+		ScriptInfo scriptInfo = createInfo(script);
+		BatchService batchService = context.getService(BatchService.class);
+		List<ModuleItem<?>> compatibleInputs = batchService.batchableInputs(
+			scriptInfo);
+		assertEquals("Wrong number of batchable inputs", 1, compatibleInputs
+			.size());
+	}
+
+	@Test
+	public void testNoCompatibleInputs() {
+		String script = "" //
+			+ "#@ String stringInput\n" //
+			+ "#@ Integer integerInput\n" //
+			+ "#@ Double doubleInput\n" //
+			+ "";
+		ScriptInfo scriptInfo = createInfo(script);
+		BatchService batchService = context.getService(BatchService.class);
+		List<ModuleItem<?>> compatibleInputs = batchService.batchableInputs(
+			scriptInfo);
+		assertTrue("Wrong inputs found to be compatible", compatibleInputs
+			.isEmpty());
+	}
 
 	@Test
 	public void testModuleBatchProcessor() {
@@ -52,9 +86,7 @@ public class BatchServiceTest {
 				+ "#@output result\n" //
 				+ "" //
 				+ "result = input";
-		StringReader scriptReader = new StringReader(script);
-		ScriptInfo scriptInfo = new ScriptInfo(context, "Foo.groovy",
-				scriptReader);
+		ScriptInfo scriptInfo = createInfo(script);
 
 		assertEquals("Wrong script language", "Groovy", scriptInfo
 				.getLanguage().getLanguageName());
@@ -89,5 +121,12 @@ public class BatchServiceTest {
 		assertEquals("Wrong column header", "result",
 				outputs.getColumnHeader(0));
 		assertEquals("Wrong file name", "quo.txt", outputs.getRowHeader(2));
+	}
+
+	/* --- Helper methods --- */
+
+	private ScriptInfo createInfo(String script) {
+		StringReader scriptReader = new StringReader(script);
+		return new ScriptInfo(context, "Foo.groovy", scriptReader);
 	}
 }
