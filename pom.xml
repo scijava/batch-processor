@@ -10,7 +10,7 @@
 	</parent>
 
 	<artifactId>batch-processor</artifactId>
-	<version>0.1.3-SNAPSHOT</version>
+	<version>0.1.3</version>
 
 	<name>Batch Processor</name>
 	<description>A Batch Processor for SciJava Modules and Scripts</description>
@@ -63,7 +63,7 @@
 	<scm>
 		<connection>scm:git:git://github.com/scijava/batch-processor</connection>
 		<developerConnection>scm:git:git@github.com:scijava/batch-processor</developerConnection>
-		<tag>HEAD</tag>
+		<tag>batch-processor-0.1.3</tag>
 		<url>https://github.com/scijava/batch-processor</url>
 	</scm>
 	<issueManagement>
