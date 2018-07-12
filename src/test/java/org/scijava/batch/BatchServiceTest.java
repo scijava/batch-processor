@@ -68,7 +68,7 @@ public class BatchServiceTest {
 		inputMap.put("moduleInfo", scriptInfo);
 		inputMap.put("inputChoice", "input");
 		inputMap.put("inputFileList", files);
-		inputMap.put("outputFolder", null);
+		//inputMap.put("outputFolder", null);
 		ModuleService moduleService = context.getService(ModuleService.class);
 		CommandService commandService = context
 				.getService(CommandService.class);
