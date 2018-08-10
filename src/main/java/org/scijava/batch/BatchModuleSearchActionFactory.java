@@ -22,12 +22,12 @@ public class BatchModuleSearchActionFactory implements SearchActionFactory {
 	@Override
 	public boolean supports(final SearchResult result) {
 		return (result instanceof ModuleSearchResult)
-				&& batchService.supports(((ModuleSearchResult) result).info());
+				&& batchService.supportsModule(((ModuleSearchResult) result).info());
 	}
 
 	@Override
 	public SearchAction create(final SearchResult result) {
-		return new DefaultSearchAction("Batch", true, () -> {
+		return new DefaultSearchAction("Batch", () -> {
 			batchService.run(((ModuleSearchResult) result).info());
 		});
 	}

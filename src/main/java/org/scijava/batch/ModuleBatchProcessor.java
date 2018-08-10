@@ -27,7 +27,7 @@ import org.scijava.plugin.Plugin;
 import org.scijava.widget.FileWidget;
 
 @Plugin(type = Command.class, label = "Choose batch processing parameters", initializer = "initInputChoice")
-public class ModuleBatchProcessor extends DynamicCommand {
+public class ModuleBatchProcessor<T> extends DynamicCommand {
 	@Parameter
 	private ModuleService moduleService;
 
@@ -66,6 +66,8 @@ public class ModuleBatchProcessor extends DynamicCommand {
 		} else if (compatibleInputs.size() > 1) {
 			choiceInput.setChoices(compatibleInputs.stream()
 					.map(ModuleItem::getName).collect(Collectors.toList()));
+		} else {
+			log.error("No compatible inputs found. Unable to initialize input choice.");
 		}
 	}
 
@@ -74,7 +76,7 @@ public class ModuleBatchProcessor extends DynamicCommand {
 	@Override
 	public void run() {
 		// mark inputChoice as resolved, then harvest script parameters (i.e. run)
-		ModuleItem<File> fileInput = moduleInfo.getInput(inputChoice, File.class);
+		ModuleItem<?> inputModuleItem = moduleInfo.getInput(inputChoice);
 		// TODO check if conversion needed?
 		Module scriptModule = moduleService.createModule(moduleInfo);
 		scriptModule.resolveInput(inputChoice);
@@ -89,8 +91,8 @@ public class ModuleBatchProcessor extends DynamicCommand {
 			scriptModule.resolveOutput(outputKey);
 		}
 
-		for (File file: inputFileList) {
-			if(!processFile(scriptModule, fileInput, file)) {
+		for (File file : inputFileList) {
+			if(!processFile(scriptModule, inputModuleItem, file)) {
 				log.warn("Terminating batch process.");
 				break; // end for loop
 			}
@@ -105,8 +107,9 @@ public class ModuleBatchProcessor extends DynamicCommand {
 	// -- Helper methods --
 	
 	@SuppressWarnings("unchecked")
-	private boolean processFile(Module module, ModuleItem<File> fileInput, File file) {
-		fileInput.setValue(module, file);
+	private boolean processFile(Module module, ModuleItem<?> inputModuleItem, File file) {
+		batchService.fillInput(module, inputModuleItem, file);
+		//fileInput.setValue(module, file);
 		outputTable.appendRow(file.getName());
 
 		Future<Module> instance = moduleService.run(module, true);

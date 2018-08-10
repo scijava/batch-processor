@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.File;
 import java.io.StringReader;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import org.scijava.Context;
 import org.scijava.command.CommandInfo;
 import org.scijava.command.CommandService;
+import org.scijava.convert.ConvertService;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleItem;
 import org.scijava.module.ModuleService;
@@ -77,6 +79,44 @@ public class BatchServiceTest {
 			scriptInfo);
 		assertTrue("Wrong inputs found to be compatible", compatibleInputs
 			.isEmpty());
+	}
+
+	@Test
+	public void testFillFileInput() {
+		BatchService batchService = context.getService(BatchService.class);
+		ModuleService moduleService = context.getService(ModuleService.class);
+		String script = "" //
+				+ "#@ File input\n" //
+				+ "#@output result\n" //
+				+ "" //
+				+ "result = input";
+		ScriptInfo scriptInfo = createInfo(script);
+		Module module = moduleService.createModule(scriptInfo);
+		ModuleItem<?> fileInput = moduleService.getSingleInput(module, File.class);
+		assertNotNull("File input", fileInput);
+		File fileObject = new File("foo.bar");
+		batchService.fillInput(module, fileInput, fileObject);
+		assertEquals("Filled input", fileObject, fileInput.getValue(module));
+	}
+
+	// @Test // FIXME needs a File->Path converter
+	public void testFillPathInput() {
+		BatchService batchService = context.getService(BatchService.class);
+		ModuleService moduleService = context.getService(ModuleService.class);
+		ConvertService convertService = context.getService(ConvertService.class);
+		String script = "" //
+				+ "#@ java.nio.file.Path pathInput\n" //
+				+ "#@output result\n" //
+				+ "" //
+				+ "result = pathInput";
+		ScriptInfo scriptInfo = createInfo(script);
+		Module module = moduleService.createModule(scriptInfo);
+		ModuleItem<?> pathInput = moduleService.getSingleInput(module, Path.class);
+		assertNotNull("Path input", pathInput);
+		File fileObject = new File("foo.bar");
+		batchService.fillInput(module, pathInput, fileObject);
+		Path converted = convertService.convert(fileObject, Path.class);
+		assertEquals("Filled input", converted, pathInput.getValue(module));
 	}
 
 	@Test
