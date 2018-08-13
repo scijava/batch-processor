@@ -37,10 +37,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
-import net.imagej.table.Column;
-import net.imagej.table.DefaultGenericTable;
-import net.imagej.table.Table;
-
 import org.scijava.ItemIO;
 import org.scijava.command.Command;
 import org.scijava.command.DynamicCommand;
@@ -52,7 +48,10 @@ import org.scijava.module.ModuleService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
-import org.scijava.widget.FileWidget;
+import org.scijava.table.Column;
+import org.scijava.table.DefaultGenericTable;
+import org.scijava.table.Table;
+//import org.scijava.widget.FileWidget;
 
 @Plugin(type = Command.class, label = "Choose batch processing parameters", initializer = "initInputChoice")
 public class ModuleBatchProcessor<T> extends DynamicCommand {
