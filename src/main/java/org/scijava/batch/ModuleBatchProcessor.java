@@ -44,7 +44,6 @@ import org.scijava.log.Logger;
 import org.scijava.module.Module;
 import org.scijava.module.ModuleInfo;
 import org.scijava.module.ModuleItem;
-import org.scijava.module.ModuleService;
 import org.scijava.module.MutableModuleItem;
 import org.scijava.plugin.Parameter;
 import org.scijava.plugin.Plugin;
@@ -55,9 +54,6 @@ import org.scijava.table.Table;
 
 @Plugin(type = Command.class, label = "Choose batch processing parameters", initializer = "initInputChoice")
 public class ModuleBatchProcessor<T> extends DynamicCommand {
-	@Parameter
-	private ModuleService moduleService;
-
 	@Parameter
 	private BatchService batchService;
 
