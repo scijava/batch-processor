@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>27.0.1</version>
+		<version>31.1.0</version>
 		<relativePath />
 	</parent>
 
@@ -83,7 +83,7 @@
 		<license.excludes>**/scripts/**</license.excludes>
 
 		<!-- NB: Fiji ships with scijava-common-2.80.1.jar currently, so we need to adapt as long as no new pom-scijava is released -->
-		<scijava-common.version>2.80.1</scijava-common.version>
+		<scijava-common.version>2.88.0</scijava-common.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
