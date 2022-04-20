@@ -120,8 +120,7 @@ public class ModuleBatchProcessor<T> extends DynamicCommand {
 		}
 
 		String taskName = "Batch:";
-		if (scriptModule.getInfo()!=null) {
-			if (scriptModule.getInfo().getName()!=null)
+		if ((scriptModule.getInfo()!=null) && (scriptModule.getInfo().getName()!=null)) {
 				taskName = scriptModule.getInfo().getName();
 		}
 		Task batchTask = taskService.createTask(taskName);
