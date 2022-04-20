@@ -1,5 +1,5 @@
 # batch-processor
 [![Build Status](https://github.com/scijava/batch-processor/actions/workflows/build-main.yml/badge.svg)](https://github.com/scijava/batch-processor/actions/workflows/build-main.yml)
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/6315ca3348cf4d30820e84b1636470e9)](https://www.codacy.com/app/imagejan/batch-processor?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=fmi-faim/batch-processor&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/ed6501d3258645eba85b4f44d7065c14)](https://www.codacy.com/gh/scijava/batch-processor/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=scijava/batch-processor&amp;utm_campaign=Badge_Grade)
 
 A Batch Processor for SciJava
