@@ -2,7 +2,7 @@
  * #%L
  * A Batch Processor for SciJava Modules and Scripts
  * %%
- * Copyright (C) 2017 - 2018 Friedrich Miescher Institute for Biomedical Research, Basel (Switzerland)
+ * Copyright (C) 2017 - 2022 Friedrich Miescher Institute for Biomedical Research, Basel (Switzerland)
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -120,8 +120,9 @@ public class ModuleBatchProcessor<T> extends DynamicCommand {
 		}
 
 		String taskName = "Batch:";
-		if ((scriptModule.getInfo()!=null) && (scriptModule.getInfo().getName()!=null)) {
-				taskName = scriptModule.getInfo().getName();
+		ModuleInfo scriptInfo = scriptModule.getInfo();
+		if (scriptInfo != null && scriptInfo.getName() != null) {
+			taskName = scriptInfo.getName();
 		}
 		Task batchTask = taskService.createTask(taskName);
 		batchTask.setProgressMaximum(inputFileList.length);
