@@ -51,6 +51,11 @@
 			<roles><role>founder</role></roles>
 			<properties><id>ctrueden</id></properties>
 		</contributor>
+		<contributor>
+			<name>Nicolas Chiaruttini</name>
+			<url>https://imagej.net/people/NicoKiaru</url>
+			<properties><id>NicoKiaru</id></properties>
+		</contributor>
 	</contributors>
 
 	<mailingLists>
