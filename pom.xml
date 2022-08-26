@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>31.1.0</version>
+		<version>32.0.0-beta-6</version>
 		<relativePath />
 	</parent>
 
@@ -81,9 +81,6 @@
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Friedrich Miescher Institute for Biomedical Research, Basel (Switzerland)</license.copyrightOwners>
 		<license.excludes>**/scripts/**</license.excludes>
-
-		<!-- NB: Fiji ships with scijava-common-2.80.1.jar currently, so we need to adapt as long as no new pom-scijava is released -->
-		<scijava-common.version>2.88.0</scijava-common.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>
