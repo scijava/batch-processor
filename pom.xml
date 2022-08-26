@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.scijava</groupId>
 		<artifactId>pom-scijava</artifactId>
-		<version>27.0.1</version>
+		<version>32.0.0-beta-6</version>
 		<relativePath />
 	</parent>
 
@@ -32,7 +32,7 @@
 		<developer>
 			<id>imagejan</id>
 			<name>Jan Eglinger</name>
-			<url>https://imagej.net/User:Eglinger</url>
+			<url>https://imagej.net/people/imagejan</url>
 			<roles>
 				<role>founder</role>
 				<role>lead</role>
@@ -47,9 +47,14 @@
 	<contributors>
 		<contributor>
 			<name>Curtis Rueden</name>
-			<url>https://imagej.net/User:Rueden</url>
+			<url>https://imagej.net/people/ctrueden</url>
 			<roles><role>founder</role></roles>
 			<properties><id>ctrueden</id></properties>
+		</contributor>
+		<contributor>
+			<name>Nicolas Chiaruttini</name>
+			<url>https://imagej.net/people/NicoKiaru</url>
+			<properties><id>NicoKiaru</id></properties>
 		</contributor>
 	</contributors>
 
@@ -81,9 +86,6 @@
 		<license.licenseName>bsd_2</license.licenseName>
 		<license.copyrightOwners>Friedrich Miescher Institute for Biomedical Research, Basel (Switzerland)</license.copyrightOwners>
 		<license.excludes>**/scripts/**</license.excludes>
-
-		<!-- NB: Fiji ships with scijava-common-2.80.1.jar currently, so we need to adapt as long as no new pom-scijava is released -->
-		<scijava-common.version>2.80.1</scijava-common.version>
 
 		<!-- NB: Deploy releases to the SciJava Maven repository. -->
 		<releaseProfiles>sign,deploy-to-scijava</releaseProfiles>

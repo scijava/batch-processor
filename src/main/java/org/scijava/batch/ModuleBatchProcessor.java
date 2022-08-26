@@ -2,7 +2,7 @@
  * #%L
  * A Batch Processor for SciJava Modules and Scripts
  * %%
- * Copyright (C) 2017 - 2018 Friedrich Miescher Institute for Biomedical Research, Basel (Switzerland)
+ * Copyright (C) 2017 - 2022 Friedrich Miescher Institute for Biomedical Research, Basel (Switzerland)
  * %%
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -50,6 +50,8 @@ import org.scijava.plugin.Plugin;
 import org.scijava.table.Column;
 import org.scijava.table.DefaultGenericTable;
 import org.scijava.table.Table;
+import org.scijava.task.Task;
+import org.scijava.task.TaskService;
 //import org.scijava.widget.FileWidget;
 
 @Plugin(type = Command.class, label = "Choose batch processing parameters", initializer = "initInputChoice")
@@ -75,6 +77,9 @@ public class ModuleBatchProcessor<T> extends DynamicCommand {
 	@SuppressWarnings("rawtypes")
 	@Parameter(type = ItemIO.OUTPUT)
 	private Table outputTable;
+
+	@Parameter
+	private TaskService taskService;
 
 	// -- Initializer --
 
@@ -114,13 +119,27 @@ public class ModuleBatchProcessor<T> extends DynamicCommand {
 			scriptModule.resolveOutput(outputKey);
 		}
 
+		String taskName = "Batch:";
+		ModuleInfo scriptInfo = scriptModule.getInfo();
+		if (scriptInfo != null && scriptInfo.getName() != null) {
+			taskName = scriptInfo.getName();
+		}
+		Task batchTask = taskService.createTask(taskName);
+		batchTask.setProgressMaximum(inputFileList.length);
+		batchTask.setCancelCallBack(() -> batchTask.setStatusMessage("Cancelling batch task..."));
 		for (File file : inputFileList) {
-			if(!processFile(scriptModule, inputModuleItem, file)) {
+			batchTask.setStatusMessage("process "+file.getName());
+			if (!(processFile(scriptModule, inputModuleItem, file))) {
 				log.warn("Terminating batch process.");
 				break; // end for loop
 			}
+			if (batchTask.isCanceled()) {
+				log.warn("Terminating batch process.");
+				break; // end for loop
+			}
+			batchTask.setProgressValue(batchTask.getProgressValue() + 1);
 		}
-
+		batchTask.finish();
 		// case File
 		//   feed files into input
 		// case Image (not needed if conversion works
